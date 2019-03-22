@@ -1,9 +1,14 @@
 var mongoose=require('mongoose');
 const _app=require('./config.js');
+var cors=require('cors');
 
 mongoose.connect('mongodb://'+_app.user+':'+_app.pwd+'@cluster0-shard-00-00-lemrd.mongodb.net:27017,cluster0-shard-00-01-lemrd.mongodb.net:27017,cluster0-shard-00-02-lemrd.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin',{useNewUrlParser: true});
 
 var user = mongoose.model('users', { name: String, email:String, password:String,role:String });
+
+var enquiry = mongoose.model('queries', { name: String, email:String, phone:Number,product:String,type:String,location:String,assignedTo:String,purchasePlan:String,followupDate:Date,status:String });
+
+var followup = mongoose.model('followups', { enquiry_id: String, comment:String,commentDate:Date });
 
 const express = require('express')
 const app = express();
@@ -12,12 +17,76 @@ const jwt = require('jsonwebtoken');
 
 app.use(bodyParser.json());
 
-app.post('/createUser', function (req, res) {
+app.post('/createUser',cors(), function (req, res) {
+    
+  if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
+
     let l_user = new user(req.body);
     l_user.save(function (err) {
         res.send('User Created');
     });
 })
+
+app.post('/createEnquiry', function (req, res) {
+  if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
+
+  let l_enquiry = new enquiry(req.body);
+  l_enquiry.save(function (err) {
+      res.send('Enquiry Submitted');
+  });
+});
+
+app.post('/createFollowup', function (req, res) {
+  
+  if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
+
+  let l_followup = new followup(req.body);
+  l_followup.save(function (err) {
+      res.send('Followup Added');
+  });
+});
+
+function validateToken(p_jwt){
+  if(!p_jwt)
+  {
+    return('Invalid Token')
+  }
+  else{
+    
+    try{
+      jwt.verify(p_jwt, 'secret')
+    }
+    catch(e){return('Invalid Token');}
+  }
+  return 'Valid';
+}
+
+app.post('/getFollowup',cors(), function (req, res) {
+    if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
+    
+    followup.find(function(err,data){
+      res.send(data);
+    });
+});
+
+app.post('/updateEnquiry', function (req, res) {
+  
+  if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
+
+  let l_upd=req.body
+  enquiry.updateOne({_id:l_upd._id},{status:l_upd.status,followupDate:new Date(l_upd.followupDate)},function (err, data) {
+      res.send(data);
+  });
+});
+
+
+app.post('/getEnquiries', function (req, res) {
+  if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
+
+  enquiry.find(function(err,data){
+      res.send(data);
+  });
+});
 
 app.post('/login', function (req, res) {
   let l_user = req.body
@@ -42,6 +111,7 @@ app.post('/verify',function(req,res){
   console.log(req.body)
   res.send(jwt.verify(req.body.jwt, 'secret'));
 })
+
 
 
 app.listen(3000, function () {
