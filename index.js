@@ -17,6 +17,10 @@ const jwt = require('jsonwebtoken');
 
 app.use(bodyParser.json());
 
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+
 app.post('/createUser',cors(), function (req, res) {
     
   if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
@@ -27,7 +31,7 @@ app.post('/createUser',cors(), function (req, res) {
     });
 })
 
-app.post('/createEnquiry', function (req, res) {
+app.post('/createEnquiry', cors(),function (req, res) {
   if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
 
   let l_enquiry = new enquiry(req.body);
@@ -36,7 +40,7 @@ app.post('/createEnquiry', function (req, res) {
   });
 });
 
-app.post('/createFollowup', function (req, res) {
+app.post('/createFollowup', cors(),function (req, res) {
   
   if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
 
@@ -69,7 +73,7 @@ app.post('/getFollowup',cors(), function (req, res) {
     });
 });
 
-app.post('/updateEnquiry', function (req, res) {
+app.post('/updateEnquiry', cors(),function (req, res) {
   
   if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
 
@@ -80,7 +84,7 @@ app.post('/updateEnquiry', function (req, res) {
 });
 
 
-app.post('/getEnquiries', function (req, res) {
+app.post('/getEnquiries',cors(), function (req, res) {
   if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
 
   enquiry.find(function(err,data){
@@ -88,8 +92,9 @@ app.post('/getEnquiries', function (req, res) {
   });
 });
 
-app.post('/login', function (req, res) {
-  let l_user = req.body
+app.post('/login', cors(),function (req, res) {
+  console.log('body---',req.body);
+  let l_user = req.body;
   user.find(l_user,{"email":1,"name":2,"role":3},function(err,data){
     console.log(data[0])
     
@@ -107,7 +112,7 @@ app.post('/login', function (req, res) {
       res.send('Invalid User Name or password')
   });
 })
-app.post('/verify',function(req,res){
+app.post('/verify',cors(),function(req,res){
   console.log(req.body)
   res.send(jwt.verify(req.body.jwt, 'secret'));
 })

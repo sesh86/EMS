@@ -1,23 +1,47 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
+import axios from 'axios';
 
 class Login extends Component {
+  constructor(props){
+    super(props);
+    this.state={alert:''}
+  }
+  onSubmit=(ev)=>{
+    ev.preventDefault();
+    let login={};
+    
+    for(let i in ev.target.elements){
+        if(ev.target.elements[i].value!==undefined && ev.target.elements[i].value!==''){
+          login[ev.target.elements[i].name]=ev.target.elements[i].value;
+        }
+    }
+    axios.post('/login',login)
+    .then(res=>{
+      if(res.data=='Invalid User Name or password')
+        this.setState({alert:res.data})
+      else{
+        localStorage.setItem('JWT', res.data);
+      }  
+      console.log(res);
+    });
+  }
+
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+      <div className="container cat">
+        <br/>
+        <br/>
+        <h1>Login</h1>
+        <form onSubmit={this.onSubmit}>
+          <div className="form-group">
+          User Name<input type="text" name="email" required className="form-control"/>
+          Password   <input type="Password" name="password"  required  className="form-control"/>
+          <br/>
+          <div hidden={!this.state.alert} className="alert alert-danger" role="alert">{this.state.alert}</div>
+          <button className="form-control btn btn-info">Login</button>
+          </div>
+        </form>
       </div>
     );
   }
