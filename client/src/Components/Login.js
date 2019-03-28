@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import axios from 'axios';
+import {mapDispatchLogin} from '../Reducers/Action';
 
 class Login extends Component {
   constructor(props){
     super(props);
     this.state={alert:''}
+    props.Login();
   }
   onSubmit=(ev)=>{
     ev.preventDefault();
@@ -21,7 +23,9 @@ class Login extends Component {
       if(res.data=='Invalid User Name or password')
         this.setState({alert:res.data})
       else{
+        this.setState({alert:''})
         localStorage.setItem('JWT', res.data);
+        this.props.history.push('/')
       }  
       console.log(res);
     });
@@ -49,4 +53,4 @@ class Login extends Component {
 
 const mapStateToProps = (state) => {return {state:state}}
 
-export default connect(mapStateToProps)(Login);
+export default connect(mapStateToProps,mapDispatchLogin)(Login);

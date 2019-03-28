@@ -4,6 +4,7 @@ import './index.css';
 // eslint-disable-next-line
 import App from './App';
 import Login from './Components/Login'
+import Enquiries from './Components/Enquiries'
 
 import { createStore } from 'redux'
 import { Provider } from 'react-redux'
@@ -19,6 +20,7 @@ ReactDOM.render(
 <Provider store={store}>
 <BrowserRouter>
 <Route exact path="/Login" component={Login}/>
+<Route exact path="/" component={Enquiries}/>
 </BrowserRouter>
 </Provider>
 , document.getElementById('root'));
