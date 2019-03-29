@@ -4,7 +4,9 @@ import './index.css';
 // eslint-disable-next-line
 import App from './App';
 import Login from './Components/Login'
+import NavBar from './Components/NavBar'
 import Enquiries from './Components/Enquiries'
+import CreateEnquiry from './Components/CreateEnquiry'
 
 import { createStore } from 'redux'
 import { Provider } from 'react-redux'
@@ -19,6 +21,8 @@ const store = createStore(rootReducer);
 ReactDOM.render(
 <Provider store={store}>
 <BrowserRouter>
+<NavBar></NavBar>
+<Route exact path="/CreateEnquiry" component={CreateEnquiry}/>
 <Route exact path="/Login" component={Login}/>
 <Route exact path="/" component={Enquiries}/>
 </BrowserRouter>
