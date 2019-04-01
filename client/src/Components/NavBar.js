@@ -5,7 +5,7 @@ import {Link , NavLink,withRouter} from 'react-router-dom';
 class NavBar extends Component {
   logout=()=>{localStorage.removeItem('JWT');this.props.history.push('/login');}
   render() {
-  return (<nav className="navbar navbar-expand-sm navbar-dark bg-dark mb-3">
+  return (<nav hidden={!localStorage.getItem('JWT')} className="navbar navbar-expand-sm navbar-dark bg-dark mb-3">
         <div className="container">
           <Link className="navbar-brand" to="/">Enquiry Management System</Link>
           <button className="navbar-toggler" data-toggle="collapse" data-target="#navbarNav"><span className="navbar-toggler-icon"></span></button>

@@ -92,6 +92,14 @@ app.post('/getEnquiries',cors(), function (req, res) {
   });
 });
 
+app.post('/getEnquiry',cors(), function (req, res) {
+  if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
+
+  enquiry.find({_id:req.body.id},function(err,data){
+      res.send(data);
+  });
+});
+
 app.post('/login', cors(),function (req, res) {
   console.log('body---',req.body);
   let l_user = req.body;

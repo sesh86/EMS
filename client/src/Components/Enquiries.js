@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import axios from 'axios';
 import {mapDispatchLogin} from '../Reducers/Action';
+import { NavLink} from 'react-router-dom';
 
 class Enquiries extends Component {
   constructor(props){
@@ -38,7 +39,7 @@ const EnquiryDetails =(props)=>{
     return (<tbody>
         {props.enq.map(e => (
           <tr className="text-left" key={e._id}>
-          <td>{e.name}</td><td>{e.phone}</td><td>{e.email}</td><td>{e.product}</td><td>{e.location}</td><td>{e.type}</td></tr>
+          <td><NavLink to={"/updateEnquiry/"+e._id}>{e.name}</NavLink></td><td>{e.phone}</td><td>{e.email}</td><td>{e.product}</td><td>{e.location}</td><td>{e.type}</td></tr>
         ))}
         </tbody>);
   

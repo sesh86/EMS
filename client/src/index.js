@@ -7,6 +7,9 @@ import Login from './Components/Login'
 import NavBar from './Components/NavBar'
 import Enquiries from './Components/Enquiries'
 import CreateEnquiry from './Components/CreateEnquiry'
+import UpdateEnquiry from './Components/UpdateEnquiry'
+
+
 
 import { createStore } from 'redux'
 import { Provider } from 'react-redux'
@@ -23,6 +26,8 @@ ReactDOM.render(
 <BrowserRouter>
 <NavBar></NavBar>
 <Route exact path="/CreateEnquiry" component={CreateEnquiry}/>
+<Route exact path="/UpdateEnquiry/:id" component={UpdateEnquiry}/>
+
 <Route exact path="/Login" component={Login}/>
 <Route exact path="/" component={Enquiries}/>
 </BrowserRouter>
