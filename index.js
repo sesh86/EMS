@@ -67,8 +67,8 @@ function validateToken(p_jwt){
 
 app.post('/getFollowup',cors(), function (req, res) {
     if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
-    
-    followup.find(function(err,data){
+
+    followup.find({enquiry_id:req.body.id},function(err,data){
       res.send(data);
     });
 });

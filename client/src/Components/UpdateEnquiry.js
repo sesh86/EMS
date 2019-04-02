@@ -6,7 +6,7 @@ import {mapDispatchLogin} from '../Reducers/Action';
 class UpdateEnquiry extends Component {
   constructor(props){
     super(props);
-    this.state={alert:'',enquiries:[]}
+    this.state={alert:'',enquiries:[],followups:[]}
     var headers = {
       'Content-Type': 'application/json',
       'jwt': localStorage.getItem('JWT')
@@ -17,7 +17,12 @@ class UpdateEnquiry extends Component {
         if(res.data==='Invalid token') this.props.history.push('/login')
         this.setState({enquiries:res.data})
     })
-
+    axios.post('/getFollowup',{id:props.match.params.id},{headers:headers})
+    .then(res=>{
+        console.log(res);
+        if(res.data==='Invalid token') this.props.history.push('/login')
+        this.setState({followups:res.data})
+    })
     if(!localStorage.getItem('JWT')) this.props.history.push('/login')
   }
   onSubmit=(ev)=>{
@@ -29,14 +34,17 @@ class UpdateEnquiry extends Component {
             enquiry[ev.target.elements[i].name]=ev.target.elements[i].value;
         }
     }
-    console.log(enquiry)    
+    console.log(enquiry) 
+    enquiry["followupDate"]=new Date();
+    enquiry["enquiry_id"]=this.props.match.params.id;
+
     
     var headers = {
         'Content-Type': 'application/json',
         'jwt': localStorage.getItem('JWT')
     }    
 
-    axios.post('/createEnquiry',enquiry,{headers:headers})
+    axios.post('/createFollowup',enquiry,{headers:headers})
     .then(res=>{
       if(res.data=='Enquiry Submitted')
         this.props.history.push('/')
@@ -52,16 +60,11 @@ class UpdateEnquiry extends Component {
         <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Product</th><th>Location</th><th>Type</th></tr></thead>
         <EnquiryDetails enq={this.state.enquiries}></EnquiryDetails>        
         </table>
-        <h1>Create Enquiry</h1>
+        <FollowUps followups={this.state.followups}></FollowUps>
+
         <form onSubmit={this.onSubmit}>
           <div className="form-group">
-          Name<input type="text" name="name" required className="form-control"/>
-          Email   <input type="text" name="email"  required  className="form-control"/>
-          phone   <input type="text" name="phone"  required  className="form-control"/>
-          product   <input type="text" name="product"  required  className="form-control"/>
-          type   <input type="text" name="type"  required  className="form-control"/>
-          location   <input type="text" name="location"  required  className="form-control"/>
-          purchasePlan   <input type="text" name="purchasePlan"  required  className="form-control"/>
+          comment<input type="text" name="comment" required className="form-control"/>
           <br/>
           <div hidden={!this.state.alert} className="alert alert-danger" role="alert">{this.state.alert}</div>
           <button className="form-control btn btn-dark">Submit</button>
@@ -79,7 +82,14 @@ const EnquiryDetails =(props)=>{
         <td>{e.name}</td><td>{e.phone}</td><td>{e.email}</td><td>{e.product}</td><td>{e.location}</td><td>{e.type}</td></tr>
       ))}
       </tbody>);
+}
 
+const FollowUps =(props)=>{
+  return (<ul>
+      {props.followups.map(f => (
+        <li className="text-left" key={f._id}>{f.comment} on {f.followupDate}</li>
+      ))}
+      </ul>);
 }
 
 const mapStateToProps = (state) => {return {state:state}}
