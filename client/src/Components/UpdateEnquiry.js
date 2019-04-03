@@ -6,7 +6,7 @@ import {mapDispatchLogin} from '../Reducers/Action';
 class UpdateEnquiry extends Component {
   constructor(props){
     super(props);
-    this.state={alert:'',enquiries:[],followups:[]}
+    this.state={alert:'',enquiries:[],followups:[],comment:''}
     var headers = {
       'Content-Type': 'application/json',
       'jwt': localStorage.getItem('JWT')
@@ -17,14 +17,25 @@ class UpdateEnquiry extends Component {
         if(res.data==='Invalid token') this.props.history.push('/login')
         this.setState({enquiries:res.data})
     })
-    axios.post('/getFollowup',{id:props.match.params.id},{headers:headers})
+    this.getFollowups();
+    if(!localStorage.getItem('JWT')) this.props.history.push('/login')
+  }
+
+  getFollowups=()=>{
+    var headers = {
+      'Content-Type': 'application/json',
+      'jwt': localStorage.getItem('JWT')
+    }    
+    axios.post('/getFollowup',{id:this.props.match.params.id},{headers:headers})
     .then(res=>{
         console.log(res);
         if(res.data==='Invalid token') this.props.history.push('/login')
         this.setState({followups:res.data})
     })
-    if(!localStorage.getItem('JWT')) this.props.history.push('/login')
-  }
+  }  
+  onChange=(e)=>{this.setState({comment:e.target.value})}
+
+  
   onSubmit=(ev)=>{
     ev.preventDefault();
     let enquiry={};
@@ -35,7 +46,7 @@ class UpdateEnquiry extends Component {
         }
     }
     console.log(enquiry) 
-    enquiry["followupDate"]=new Date();
+    enquiry["commentDate"]=new Date();
     enquiry["enquiry_id"]=this.props.match.params.id;
 
     
@@ -46,11 +57,15 @@ class UpdateEnquiry extends Component {
 
     axios.post('/createFollowup',enquiry,{headers:headers})
     .then(res=>{
-      if(res.data=='Enquiry Submitted')
-        this.props.history.push('/')
+      if(res.data=='Followup Added'){
+        this.getFollowups();
+        this.setState({comment:''})
+      }
     });    
   }
-
+  componentDidUpdate(){
+    console.log('Im updated');
+  }
   render() {
     return (
       <div className="container cat">
@@ -64,7 +79,7 @@ class UpdateEnquiry extends Component {
 
         <form onSubmit={this.onSubmit}>
           <div className="form-group">
-          comment<input type="text" name="comment" required className="form-control"/>
+          comment<input type="text" onChange={this.onChange} name="comment" value={this.state.comment} required className="form-control"/>
           <br/>
           <div hidden={!this.state.alert} className="alert alert-danger" role="alert">{this.state.alert}</div>
           <button className="form-control btn btn-dark">Submit</button>
@@ -85,9 +100,9 @@ const EnquiryDetails =(props)=>{
 }
 
 const FollowUps =(props)=>{
-  return (<ul>
+  return (<ul className="list-group mb5 text-left">
       {props.followups.map(f => (
-        <li className="text-left" key={f._id}>{f.comment} on {f.followupDate}</li>
+        <li className="list-group-item" key={f._id}>{f.comment} on <span className="text-muted text-right">{f.commentDate}</span></li>
       ))}
       </ul>);
 }
