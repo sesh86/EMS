@@ -18,7 +18,7 @@ class Login extends Component {
           login[ev.target.elements[i].name]=ev.target.elements[i].value;
         }
     }
-    axios.post('/login',login)
+    axios.post('https://react-apis.herokuapp.com/login',login)
     .then(res=>{
       if(res.data=='Invalid User Name or password')
         this.setState({alert:res.data})
@@ -43,7 +43,7 @@ class Login extends Component {
           Password   <input type="Password" name="password"  required  className="form-control"/>
           <br/>
           <div hidden={!this.state.alert} className="alert alert-danger" role="alert">{this.state.alert}</div>
-          <button className="form-control btn btn-info">Login</button>
+          <button className="form-control btn btn-dark">Login</button>
           </div>
         </form>
       </div>

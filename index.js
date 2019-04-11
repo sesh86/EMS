@@ -2,6 +2,17 @@ var mongoose=require('mongoose');
 const _app=require('./config.js');
 var cors=require('cors');
 
+var whitelist = ['http://localhost', 'http://example2.com']
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}
+
 mongoose.connect('mongodb://'+_app.user+':'+_app.pwd+'@cluster0-shard-00-00-lemrd.mongodb.net:27017,cluster0-shard-00-01-lemrd.mongodb.net:27017,cluster0-shard-00-02-lemrd.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin',{useNewUrlParser: true});
 
 var user = mongoose.model('users', { name: String, email:String, password:String,role:String });
@@ -21,7 +32,7 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 
-app.post('/createUser',cors(), function (req, res) {
+app.post('/createUser',cors(corsOptions), function (req, res) {
     
   if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
 
@@ -31,7 +42,7 @@ app.post('/createUser',cors(), function (req, res) {
     });
 })
 
-app.post('/createEnquiry', cors(),function (req, res) {
+app.post('/createEnquiry', cors(corsOptions),function (req, res) {
   if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
 
   let l_enquiry = new enquiry(req.body);
@@ -40,7 +51,7 @@ app.post('/createEnquiry', cors(),function (req, res) {
   });
 });
 
-app.post('/createFollowup', cors(),function (req, res) {
+app.post('/createFollowup', cors(corsOptions),function (req, res) {
   
   if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
 
@@ -65,7 +76,7 @@ function validateToken(p_jwt){
   return 'Valid';
 }
 
-app.post('/getFollowup',cors(), function (req, res) {
+app.post('/getFollowup',cors(corsOptions), function (req, res) {
     if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
 
     followup.find({enquiry_id:req.body.id},function(err,data){
@@ -73,7 +84,7 @@ app.post('/getFollowup',cors(), function (req, res) {
     });
 });
 
-app.post('/updateEnquiry', cors(),function (req, res) {
+app.post('/updateEnquiry', cors(corsOptions),function (req, res) {
   
   if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
 
@@ -84,7 +95,7 @@ app.post('/updateEnquiry', cors(),function (req, res) {
 });
 
 
-app.post('/getEnquiries',cors(), function (req, res) {
+app.post('/getEnquiries',cors(corsOptions), function (req, res) {
   if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
 
   enquiry.find(function(err,data){
@@ -92,7 +103,7 @@ app.post('/getEnquiries',cors(), function (req, res) {
   });
 });
 
-app.post('/getEnquiry',cors(), function (req, res) {
+app.post('/getEnquiry',cors(corsOptions), function (req, res) {
   if(validateToken(req.headers.jwt)!=='Valid'){res.send('Invalid token'); return}
 
   enquiry.find({_id:req.body.id},function(err,data){
@@ -100,7 +111,7 @@ app.post('/getEnquiry',cors(), function (req, res) {
   });
 });
 
-app.post('/login', cors(),function (req, res) {
+app.post('/login', cors(corsOptions),function (req, res) {
   console.log('body---',req.body);
   let l_user = req.body;
   user.find(l_user,{"email":1,"name":2,"role":3},function(err,data){
@@ -120,12 +131,14 @@ app.post('/login', cors(),function (req, res) {
       res.send('Invalid User Name or password')
   });
 })
-app.post('/verify',cors(),function(req,res){
+app.post('/verify',cors(corsOptions),function(req,res){
   console.log(req.body)
   res.send(jwt.verify(req.body.jwt, 'secret'));
 })
 
-
+app.get('/',cors(corsOptions),function(req,res){
+	res.send('Hosted');
+})
 
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!')
